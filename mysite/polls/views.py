@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
-from django.urls import reverse 
+from django.urls import reverse
 from django.views import generic
-from .models import Question
+from .models import Question, Choice
+
 
 # Create your views here.
 class IndexView(generic.ListView):
@@ -12,7 +13,6 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         """Returns the last five published questions"""
         return Question.objects.order_by('-pub_date')[:5]
-
 
 
 class DetailView(generic.DetailView):
@@ -32,13 +32,10 @@ def vote(request, question_id):
     except(KeyError, Choice.DoesNotExist):
         # redisplay de question voting form
         return render(request, 'polls/detail.html', {'question': question,
-            'error_message': "You didn't select a choice",})
+                                                     'error_message': "You didn't select a choice", })
     else:
         selected_choice.votes += 1
         selected_choice.save()
         # Always return an HttoResponseRedirect after successfully dealing with POST data.
         # This prevent data from being posted twice if a user hits the back button.
         return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
-
-
-
